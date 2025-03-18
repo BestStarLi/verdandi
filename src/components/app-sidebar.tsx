@@ -1,5 +1,4 @@
-import * as React from "react"
-import { Separator } from "@/components/ui/separator"
+import * as React from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -11,45 +10,43 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from '@/components/ui/sidebar';
 
 const data = {
   navMain: [
     {
-      title: "Node Schema Definition",
-      url: "#",
+      title: 'Node Schema Definition',
+      url: '#',
       items: [
         {
-          title: "Edit JSON",
-          url: "#",
+          title: 'Edit JSON',
+          url: '#',
+          isActive: true,
         },
       ],
     },
     {
-      title: "Component Definition",
-      url: "#",
+      title: 'Component Definition',
+      url: '#',
       items: [
         {
-          title: "Edit JSON",
-          url: "#",
-          isActive: true,
-        },
-        {
-          title: "TESTING",
-          url: "#",
+          title: 'Edit JSON',
+          url: '#',
+          isActive: false,
         },
       ],
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
-      <SidebarHeader>
-        <div>Definition JSON Editor</div>
+      <SidebarHeader className='bg-black'>
+        <div className="flex justify-center h-12 items-center">
+          <h2 className="text-2xl font-bold text-white">Definition Editor</h2>
+        </div>
       </SidebarHeader>
-      <Separator className="my-6" />
       <SidebarContent>
         {data.navMain.map((item) => (
           <SidebarGroup key={item.title}>
@@ -70,5 +67,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

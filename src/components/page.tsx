@@ -18,7 +18,7 @@ export default function Page() {
             <Separator orientation="vertical" className="mr-2 h-4" />
             <div>XXXX Schema Editor</div>
           </header>
-          <NodeSchemaDefinition />
+          <NodeSchemaDefinition/>
         </SidebarInset>
       </SidebarProvider>
     </>

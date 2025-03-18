@@ -3,9 +3,9 @@ import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-import { Separator } from '@/components/ui/separator';
 import Fields from './fields';
+import ExtendsPanel from './extendsPanel';
+import TypePanel from './typePanel';
 
 interface SchemaField {
   name: string;
@@ -18,6 +18,7 @@ interface SchemaField {
 interface SchemaDefinition {
   name: string;
   extends: string;
+  type: string;
   fields: SchemaField[];
 }
 
@@ -31,54 +32,15 @@ interface NodeType {
   };
 }
 
-// const nodeTypes = [
-//   {
-//     name: 'MongoDoc',
-//     schema: {
-//       name: 'MongoDocument',
-//       fields: {
-//         _id: { type: 'string' },
-//         name: { type: 'string', required: true },
-//       },
-//     },
-//   },
-//   {
-//     name: 'BaseNode',
-//     schema: {
-//       name: 'BaseNode',
-//       fields: {
-//         id: { type: 'string' },
-//         type: { type: 'string', required: true },
-//       },
-//     },
-//   },
-//   {
-//     name: 'SumNode',
-//     schema: {
-//       name: 'SumNode',
-//       fields: {
-//         value: { type: 'number' },
-//         items: { type: 'array', required: true },
-//         value1: { type: 'number' },
-//         items1: { type: 'array', required: true },
-//         value2: { type: 'number' },
-//         items2: { type: 'array', required: true },
-//         value3: { type: 'number' },
-//         items3: { type: 'array', required: true },
-//         value4: { type: 'number' },
-//         items4: { type: 'array', required: true },
-//       },
-//     },
-//   },
-// ];
-
 export default function NodeSchemaDefinition() {
   const [schema, setSchema] = useState<SchemaDefinition>({
     name: '',
-    extends: 'MongoDoc',
+    extends: '',
+    type: '',
     fields: [],
   });
   const [showExtendsPanel, setShowExtendsPanel] = useState(false);
+  const [showTypePanel, setShowTypePanel] = useState(false);
   const [selectedNode, setSelectedNode] = useState('MongoDoc');
   const [nodeTypes, setNodeTypes] = useState<NodeType[]>([]);
 
@@ -100,6 +62,8 @@ export default function NodeSchemaDefinition() {
 
   const handleNameChange = (value: string) => {
     setSchema((prev) => ({ ...prev, name: value }));
+    setShowExtendsPanel(false);
+    setShowTypePanel(false);
   };
 
   const handleExtendsSelect = (value: string) => {
@@ -107,22 +71,27 @@ export default function NodeSchemaDefinition() {
     setShowExtendsPanel(false);
   };
 
+  const handleTypeSelect = (value: string) => {
+    setSchema((prev) => ({ ...prev, type: value }));
+    setShowTypePanel(false);
+  };
+
   const toggleExtendsPanel = () => {
-    if (!showExtendsPanel) {
-      setShowExtendsPanel(true);
-      setSelectedNode(schema.extends);
-    }
+    setShowExtendsPanel(true);
+    setShowTypePanel(false);
+  };
+
+  const toggleTypePanel = () => {
+    setShowTypePanel(true);
+    setShowExtendsPanel(false);
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0 m-4">
+    <div className="flex flex-1 flex-col gap-4 p-4 pt-0 m-4 h-full">
       <h1 className="text-2xl font-bold">Node Schema Definition</h1>
       <div className="flex flex-1 flex-row gap-4">
         {/* Left Panel */}
-        <div
-          className="flex flex-col justify-between flex-1"
-          style={{ flex: 2 }}
-        >
+        <div className="flex flex-col justify-between flex-1 basis-2/5">
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-base">
@@ -142,78 +111,50 @@ export default function NodeSchemaDefinition() {
               </Label>
               <Button
                 variant="outline"
-                className="w-full justify-between"
+                className="w-full justify-between cursor-pointer"
                 onClick={toggleExtendsPanel}
               >
-                {schema.extends}
+                {schema.extends || '请选择'}
                 <ChevronDown className="h-4 w-4 opacity-50" />
               </Button>
             </div>
-            <Fields />
-          </div>
-          <div className="flex gap-4 mt-auto justify-end">
-            <Button
-              variant="outline"
-              className="min-w-[80px] border border-gray-300 bg-white text-black hover:bg-gray-100 hover:text-black"
-            >
-              Preview
-            </Button>
-            <Button className="min-w-[80px] bg-black hover:bg-black/90">
-              Register
-            </Button>
+            <Fields
+              toggleTypePanel={toggleTypePanel}
+              selectedType={schema.type}
+            />
+            <div className="flex gap-4 justify-end mt-auto">
+              <Button
+                variant="outline"
+                className="min-w-[80px] border border-gray-300 bg-white text-black hover:bg-gray-100 hover:text-black cursor-pointer"
+              >
+                Preview
+              </Button>
+              <Button className="min-w-[80px] bg-black hover:bg-black/90 cursor-pointer">
+                Register
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Right Panel */}
-        <div className="flex-1" style={{ flex: 3 }}>
+        <div className="flex-1 basis-3/5">
           {showExtendsPanel && (
-            <div className="flex h-full bg-white rounded-lg border p-4">
-              <div className="pr-4 space-y-1" style={{ flex: 1 }}>
-                {nodeTypes.map((type) => (
-                  <Button
-                    key={type.name}
-                    variant={selectedNode === type.name ? 'default' : 'ghost'}
-                    className={`w-full justify-start ${
-                      selectedNode === type.name
-                        ? 'bg-black text-white hover:bg-black/90'
-                        : ''
-                    }`}
-                    onClick={() => setSelectedNode(type.name)}
-                  >
-                    {type.name}
-                  </Button>
-                ))}
-                <div className="mt-4 flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    className="min-w-[80px] border border-gray-300 bg-white text-black hover:bg-gray-100 hover:text-black"
-                    onClick={() => setShowExtendsPanel(false)}
-                  >
-                    No
-                  </Button>
-                  <Button
-                    className="min-w-[80px] bg-black hover:bg-black/90"
-                    onClick={() => handleExtendsSelect(selectedNode)}
-                  >
-                    Yes
-                  </Button>
-                </div>
-              </div>
-              <Separator orientation="vertical" className="h-full" />
-              <div className="pl-4" style={{ flex: 2 }}>
-                <div className="bg-black rounded-lg p-4 font-mono text-sm">
-                  <pre className="text-white">
-                    <code>
-                      {JSON.stringify(
-                        nodeTypes.find((t) => t.name === selectedNode)?.schema,
-                        null,
-                        2
-                      )}
-                    </code>
-                  </pre>
-                </div>
-              </div>
-            </div>
+            <ExtendsPanel
+              nodeTypes={nodeTypes}
+              selectedNode={selectedNode}
+              setSelectedNode={setSelectedNode}
+              handleExtendsSelect={handleExtendsSelect}
+              setShowExtendsPanel={setShowExtendsPanel}
+            />
+          )}
+          {showTypePanel && (
+            <TypePanel
+              nodeTypes={nodeTypes}
+              selectedNode={selectedNode}
+              setSelectedNode={setSelectedNode}
+              handleTypeSelect={handleTypeSelect}
+              setShowTypePanel={setShowTypePanel}
+            />
           )}
         </div>
       </div>
