@@ -43,6 +43,12 @@ export default function NodeSchemaDefinition() {
   const [showTypePanel, setShowTypePanel] = useState(false);
   const [selectedNode, setSelectedNode] = useState('MongoDoc');
   const [nodeTypes, setNodeTypes] = useState<NodeType[]>([]);
+  // 存储每个字段的类型选择
+  const [selectedTypes, setSelectedTypes] = useState<Record<string, string>>(
+    {}
+  );
+  // 当前正在编辑类型的字段ID
+  const [currentFieldId, setCurrentFieldId] = useState<string>('');
 
   useEffect(() => {
     const fetchNodeTypes = async () => {
@@ -72,7 +78,11 @@ export default function NodeSchemaDefinition() {
   };
 
   const handleTypeSelect = (value: string) => {
-    setSchema((prev) => ({ ...prev, type: value }));
+    // 更新特定字段的类型
+    setSelectedTypes((prev) => ({
+      ...prev,
+      [currentFieldId]: value,
+    }));
     setShowTypePanel(false);
   };
 
@@ -81,7 +91,9 @@ export default function NodeSchemaDefinition() {
     setShowTypePanel(false);
   };
 
-  const toggleTypePanel = () => {
+  // 修改为接收字段ID参数
+  const toggleTypePanel = (fieldId: string) => {
+    setCurrentFieldId(fieldId);
     setShowTypePanel(true);
     setShowExtendsPanel(false);
   };
@@ -91,8 +103,8 @@ export default function NodeSchemaDefinition() {
       <h1 className="text-2xl font-bold">Node Schema Definition</h1>
       <div className="flex flex-1 flex-row gap-4">
         {/* Left Panel */}
-        <div className="flex flex-col justify-between flex-1 basis-2/5">
-          <div className="space-y-4">
+        <div className="flex flex-col flex-1 basis-2/5">
+          <div className="space-y-4 overflow-y-auto max-h-[calc(100vh-15rem)]">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-base">
                 name<span className="text-destructive">*</span>
@@ -120,19 +132,19 @@ export default function NodeSchemaDefinition() {
             </div>
             <Fields
               toggleTypePanel={toggleTypePanel}
-              selectedType={schema.type}
+              selectedTypes={selectedTypes}
             />
-            <div className="flex gap-4 justify-end mt-auto">
-              <Button
-                variant="outline"
-                className="min-w-[80px] border border-gray-300 bg-white text-black hover:bg-gray-100 hover:text-black cursor-pointer"
-              >
-                Preview
-              </Button>
-              <Button className="min-w-[80px] bg-black hover:bg-black/90 cursor-pointer">
-                Register
-              </Button>
-            </div>
+          </div>
+          <div className="flex gap-4 justify-end mt-4">
+            <Button
+              variant="outline"
+              className="min-w-[80px] border border-gray-300 bg-white text-black hover:bg-gray-100 hover:text-black cursor-pointer"
+            >
+              Preview
+            </Button>
+            <Button className="min-w-[80px] bg-black hover:bg-black/90 cursor-pointer">
+              Register
+            </Button>
           </div>
         </div>
 

@@ -17,7 +17,6 @@ interface TypePanelProps {
   nodeTypes: NodeType[];
   selectedNode: string;
   setSelectedNode: (value: string) => void;
-  //   handleTypeSelect: (value: string) => void;
   setShowTypePanel: (value: boolean) => void;
   handleTypeSelect: (value: string) => void;
 }
@@ -29,7 +28,6 @@ export default function TypePanel({
   nodeTypes,
   selectedNode,
   setSelectedNode,
-  //   handleTypeSelect,
   setShowTypePanel,
   handleTypeSelect,
 }: TypePanelProps) {
