@@ -1,5 +1,6 @@
-// import React from 'react';
-import { useState } from 'react';
+'use client';
+
+import { useState, useEffect } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 
@@ -33,6 +34,17 @@ export default function TypePanel({
 }: TypePanelProps) {
   const [showSchema, setShowSchema] = useState(false);
   const [isNodeTypeSelected, setIsNodeTypeSelected] = useState(false);
+
+  useEffect(() => {
+    if (selectedNode) {
+      const isSchema = nodeTypes.some((type) => type.name === selectedNode);
+      setIsNodeTypeSelected(isSchema);
+      setShowSchema(isSchema);
+    } else {
+      setIsNodeTypeSelected(false);
+      setShowSchema(false);
+    }
+  }, [selectedNode, nodeTypes]);
 
   const handleNodeTypeClick = (type: string) => {
     setSelectedNode(type);

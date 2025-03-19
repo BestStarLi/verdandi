@@ -25,81 +25,24 @@ import { Input } from '@/components/ui/input';
 // }
 
 interface FieldsProps {
-  toggleTypePanel: (fieldId: string) => void;
+  toggleTypePanel: (fieldId: string, isItem?: boolean) => void;
   selectedTypes: Record<string, string>;
+  selectedItems: Record<string, string>;
   fieldId?: string;
 }
 
 export default function Fields({
   toggleTypePanel,
   selectedTypes,
+  selectedItems,
   fieldId = 'root',
 }: FieldsProps) {
-  const [isFieldsOpen, setIsFieldsOpen] = useState(false);
+  const [isFieldsOpen, setIsFieldsOpen] = useState(true);
   const selectedType = selectedTypes[fieldId] || '';
-  // 为嵌套的 fields 生成唯一 ID
+  const selectedItem = selectedItems[fieldId] || '';
   const nestedFieldId = `${fieldId}-nested`;
 
   return (
-    // <Collapsible
-    //   open={isFieldsOpen}
-    //   onOpenChange={setIsFieldsOpen}
-    //   className="space-y-2"
-    // >
-    //   <CollapsibleTrigger className="flex items-center gap-2 w-full hover:bg-gray-100 rounded-md p-2 transition-all duration-300">
-    //     <ChevronDown
-    //       className={`h-4 w-4 transition-transform duration-300 ${
-    //         isFieldsOpen ? 'transform rotate-180' : ''
-    //       }`}
-    //     />
-    //     <span>fields</span>
-    //   </CollapsibleTrigger>
-    //   <CollapsibleContent className="space-y-4 pl-6 data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp">
-    //     <div className="bg-white rounded-lg border p-4 space-y-4">
-    //       <div className="space-y-2">
-    //         <Label htmlFor="fieldName" className="text-base">
-    //           name<span className="text-destructive">*</span>
-    //         </Label>
-    //         <Input id="fieldName" className="w-full" />
-    //       </div>
-    //       <div className="space-y-2">
-    //         <div className="flex items-center space-x-2">
-    //           <Label htmlFor="terms" className="text-base">
-    //             required
-    //           </Label>
-    //           <Checkbox id="terms" className="cursor-pointer" />
-    //         </div>
-    //         <div className="space-y-2">
-    //           <Label htmlFor="type" className="text-base">
-    //             type
-    //           </Label>
-    //           <Button
-    //             variant="outline"
-    //             className="w-full justify-between cursor-pointer"
-    //             onClick={toggleTypePanel}
-    //           >
-    //             <span>{selectedType || '请选择'}</span>
-    //             <ChevronDown className="h-4 w-4 opacity-50" />
-    //           </Button>
-    //         </div>
-    //       </div>
-    //       {['map', 'array'].includes(selectedType) && (
-    //         <div className="space-y-2">
-    //           <Label htmlFor="item" className="text-base">
-    //             item<span className="text-destructive">*</span>
-    //           </Label>
-    //           <Input id="item" className="w-full" />
-    //         </div>
-    //       )}
-    //       {selectedType === 'object' && (
-    //         <Fields
-    //           toggleTypePanel={toggleTypePanel}
-    //           selectedType={selectedType}
-    //         />
-    //       )}
-    //     </div>
-    //   </CollapsibleContent>
-    // </Collapsible>
     <Collapsible
       open={isFieldsOpen}
       onOpenChange={setIsFieldsOpen}
@@ -119,7 +62,11 @@ export default function Fields({
             <Label htmlFor={`fieldName-${fieldId}`} className="text-base">
               name<span className="text-destructive">*</span>
             </Label>
-            <Input id={`fieldName-${fieldId}`} className="w-full" />
+            <Input
+              id={`fieldName-${fieldId}`}
+              className="w-full"
+              placeholder="Required"
+            />
           </div>
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
@@ -135,7 +82,7 @@ export default function Fields({
               <Button
                 variant="outline"
                 className="w-full justify-between cursor-pointer"
-                onClick={() => toggleTypePanel(fieldId)}
+                onClick={() => toggleTypePanel(fieldId, false)}
               >
                 <span>{selectedType || '请选择'}</span>
                 <ChevronDown className="h-4 w-4 opacity-50" />
@@ -145,15 +92,23 @@ export default function Fields({
           {['map', 'array'].includes(selectedType) && (
             <div className="space-y-2">
               <Label htmlFor={`item-${fieldId}`} className="text-base">
-                item<span className="text-destructive">*</span>
+                item
               </Label>
-              <Input id={`item-${fieldId}`} className="w-full" />
+              <Button
+                variant="outline"
+                className="w-full justify-between cursor-pointer"
+                onClick={() => toggleTypePanel(fieldId, true)}
+              >
+                <span>{selectedItem || '请选择'}</span>
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
             </div>
           )}
           {selectedType === 'object' && (
             <Fields
               toggleTypePanel={toggleTypePanel}
               selectedTypes={selectedTypes}
+              selectedItems={selectedItems}
               fieldId={nestedFieldId}
             />
           )}
