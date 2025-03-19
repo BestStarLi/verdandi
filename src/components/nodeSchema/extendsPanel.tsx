@@ -43,6 +43,7 @@ export default function ExtendsPanel({
   return (
     <div className="flex h-full bg-white rounded-lg border p-4">
       <div className="pr-4 space-y-1 flex-1">
+        <h2 className="text-lg font-bold">Schema</h2>
         {nodeTypes.map((type) => (
           <Button
             key={type.name}

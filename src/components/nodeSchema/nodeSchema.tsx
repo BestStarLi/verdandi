@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -43,12 +45,15 @@ export default function NodeSchemaDefinition() {
   const [showTypePanel, setShowTypePanel] = useState(false);
   const [selectedNode, setSelectedNode] = useState('MongoDoc');
   const [nodeTypes, setNodeTypes] = useState<NodeType[]>([]);
-  // 存储每个字段的类型选择
   const [selectedTypes, setSelectedTypes] = useState<Record<string, string>>(
     {}
   );
-  // 当前正在编辑类型的字段ID
+  const [selectedItems, setSelectedItems] = useState<Record<string, string>>(
+    {}
+  );
   const [currentFieldId, setCurrentFieldId] = useState<string>('');
+  const [isItemSelection, setIsItemSelection] = useState(false);
+  const [panelType, setPanelType] = useState<'type' | 'item'>('type');
 
   useEffect(() => {
     const fetchNodeTypes = async () => {
@@ -78,8 +83,15 @@ export default function NodeSchemaDefinition() {
   };
 
   const handleTypeSelect = (value: string) => {
-    // 更新特定字段的类型
     setSelectedTypes((prev) => ({
+      ...prev,
+      [currentFieldId]: value,
+    }));
+    setShowTypePanel(false);
+  };
+
+  const handleItemSelect = (value: string) => {
+    setSelectedItems((prev) => ({
       ...prev,
       [currentFieldId]: value,
     }));
@@ -91,9 +103,17 @@ export default function NodeSchemaDefinition() {
     setShowTypePanel(false);
   };
 
-  // 修改为接收字段ID参数
-  const toggleTypePanel = (fieldId: string) => {
+  const toggleTypePanel = (fieldId: string, isItem = false) => {
     setCurrentFieldId(fieldId);
+    setIsItemSelection(isItem);
+    setPanelType(isItem ? 'item' : 'type');
+
+    if (isItem) {
+      setSelectedNode(selectedItems[fieldId] || '');
+    } else {
+      setSelectedNode(selectedTypes[fieldId] || '');
+    }
+
     setShowTypePanel(true);
     setShowExtendsPanel(false);
   };
@@ -111,6 +131,7 @@ export default function NodeSchemaDefinition() {
               </Label>
               <Input
                 id="name"
+                placeholder="Required"
                 value={schema.name}
                 onChange={(e) => handleNameChange(e.target.value)}
                 required
@@ -133,6 +154,7 @@ export default function NodeSchemaDefinition() {
             <Fields
               toggleTypePanel={toggleTypePanel}
               selectedTypes={selectedTypes}
+              selectedItems={selectedItems}
             />
           </div>
           <div className="flex gap-4 justify-end mt-4">
@@ -164,7 +186,9 @@ export default function NodeSchemaDefinition() {
               nodeTypes={nodeTypes}
               selectedNode={selectedNode}
               setSelectedNode={setSelectedNode}
-              handleTypeSelect={handleTypeSelect}
+              handleTypeSelect={
+                isItemSelection ? handleItemSelect : handleTypeSelect
+              }
               setShowTypePanel={setShowTypePanel}
             />
           )}

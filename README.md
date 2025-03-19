@@ -1,5 +1,5 @@
 # Verdandi
 
-Definition JSON Editor for yggdrail
+Node Schema and Component Definition JSON Editor for yggdrail
 
 ## Still Developing ...
