@@ -1,4 +1,6 @@
-import { useState } from 'react';
+'use client';
+
+import { useState, useEffect } from 'react';
 import {
   Collapsible,
   CollapsibleTrigger,
@@ -9,20 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronDown } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-
-// interface SchemaField {
-//   name: string;
-//   required: boolean;
-//   type: string;
-//   item?: string;
-//   fields?: SchemaField[];
-// }
-
-// interface SchemaDefinition {
-//   name: string;
-//   type: string;
-//   fields: SchemaField[];
-// }
+import { useNodeSchema } from './nodeSchemaContext';
 
 interface FieldsProps {
   toggleTypePanel: (fieldId: string, isItem?: boolean) => void;
@@ -37,10 +26,27 @@ export default function Fields({
   selectedItems,
   fieldId = 'root',
 }: FieldsProps) {
+  const { fieldData, updateFieldName, updateFieldRequired } = useNodeSchema();
   const [isFieldsOpen, setIsFieldsOpen] = useState(true);
   const selectedType = selectedTypes[fieldId] || '';
   const selectedItem = selectedItems[fieldId] || '';
   const nestedFieldId = `${fieldId}-nested`;
+  const currentField = fieldData[fieldId] || { name: '', required: false };
+
+  useEffect(() => {
+    if (!fieldData[fieldId] && fieldId) {
+      updateFieldName(fieldId, '');
+      updateFieldRequired(fieldId, false);
+    }
+  }, [fieldId, fieldData, updateFieldName, updateFieldRequired]);
+
+  const handleNameChange = (value: string) => {
+    updateFieldName(fieldId, value);
+  };
+
+  const handleRequiredChange = (checked: boolean) => {
+    updateFieldRequired(fieldId, checked);
+  };
 
   return (
     <Collapsible
@@ -66,6 +72,8 @@ export default function Fields({
               id={`fieldName-${fieldId}`}
               className="w-full"
               placeholder="Required"
+              value={currentField.name}
+              onChange={(e) => handleNameChange(e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -73,7 +81,12 @@ export default function Fields({
               <Label htmlFor={`terms-${fieldId}`} className="text-base">
                 required
               </Label>
-              <Checkbox id={`terms-${fieldId}`} className="cursor-pointer" />
+              <Checkbox
+                id={`terms-${fieldId}`}
+                className="cursor-pointer"
+                checked={currentField.required}
+                onCheckedChange={handleRequiredChange}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor={`type-${fieldId}`} className="text-base">

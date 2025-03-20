@@ -8,21 +8,8 @@ import { Label } from '@/components/ui/label';
 import Fields from './fields';
 import ExtendsPanel from './extendsPanel';
 import TypePanel from './typePanel';
-
-interface SchemaField {
-  name: string;
-  required: boolean;
-  type: string;
-  item?: string;
-  fields?: SchemaField[];
-}
-
-interface SchemaDefinition {
-  name: string;
-  extends: string;
-  type: string;
-  fields: SchemaField[];
-}
+import PreviewPanel from './previewPanel';
+import { useNodeSchema } from './nodeSchemaContext';
 
 interface NodeType {
   name: string;
@@ -35,25 +22,23 @@ interface NodeType {
 }
 
 export default function NodeSchemaDefinition() {
-  const [schema, setSchema] = useState<SchemaDefinition>({
-    name: '',
-    extends: '',
-    type: '',
-    fields: [],
-  });
+  const {
+    schema,
+    setSchema,
+    selectedTypes,
+    setSelectedTypes,
+    selectedItems,
+    setSelectedItems,
+    updateName,
+  } = useNodeSchema();
   const [showExtendsPanel, setShowExtendsPanel] = useState(false);
   const [showTypePanel, setShowTypePanel] = useState(false);
   const [selectedNode, setSelectedNode] = useState('MongoDoc');
   const [nodeTypes, setNodeTypes] = useState<NodeType[]>([]);
-  const [selectedTypes, setSelectedTypes] = useState<Record<string, string>>(
-    {}
-  );
-  const [selectedItems, setSelectedItems] = useState<Record<string, string>>(
-    {}
-  );
   const [currentFieldId, setCurrentFieldId] = useState<string>('');
   const [isItemSelection, setIsItemSelection] = useState(false);
   const [panelType, setPanelType] = useState<'type' | 'item'>('type');
+  const [showPreviewPanel, setShowPreviewPanel] = useState(false);
 
   useEffect(() => {
     const fetchNodeTypes = async () => {
@@ -72,7 +57,7 @@ export default function NodeSchemaDefinition() {
   }, []);
 
   const handleNameChange = (value: string) => {
-    setSchema((prev) => ({ ...prev, name: value }));
+    updateName(value);
     setShowExtendsPanel(false);
     setShowTypePanel(false);
   };
@@ -101,12 +86,14 @@ export default function NodeSchemaDefinition() {
   const toggleExtendsPanel = () => {
     setShowExtendsPanel(true);
     setShowTypePanel(false);
+    setShowPreviewPanel(false);
   };
 
   const toggleTypePanel = (fieldId: string, isItem = false) => {
     setCurrentFieldId(fieldId);
     setIsItemSelection(isItem);
     setPanelType(isItem ? 'item' : 'type');
+    setShowPreviewPanel(false);
 
     if (isItem) {
       setSelectedNode(selectedItems[fieldId] || '');
@@ -116,6 +103,28 @@ export default function NodeSchemaDefinition() {
 
     setShowTypePanel(true);
     setShowExtendsPanel(false);
+  };
+
+  const handlePreview = () => {
+    console.log('Current Schema:', schema);
+
+    setShowPreviewPanel(true);
+    setShowExtendsPanel(false);
+    setShowTypePanel(false);
+  };
+
+  const handleRegister = () => {
+    const json = JSON.stringify(schema, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+
+    a.href = url;
+    a.download = 'NodeSchemaDefinition.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -161,10 +170,14 @@ export default function NodeSchemaDefinition() {
             <Button
               variant="outline"
               className="min-w-[80px] border border-gray-300 bg-white text-black hover:bg-gray-100 hover:text-black cursor-pointer"
+              onClick={handlePreview}
             >
               Preview
             </Button>
-            <Button className="min-w-[80px] bg-black hover:bg-black/90 cursor-pointer">
+            <Button
+              className="min-w-[80px] bg-black hover:bg-black/90 cursor-pointer"
+              onClick={handleRegister}
+            >
               Register
             </Button>
           </div>
@@ -191,6 +204,9 @@ export default function NodeSchemaDefinition() {
               }
               setShowTypePanel={setShowTypePanel}
             />
+          )}
+          {showPreviewPanel && (
+            <PreviewPanel onClose={() => setShowPreviewPanel(false)} />
           )}
         </div>
       </div>

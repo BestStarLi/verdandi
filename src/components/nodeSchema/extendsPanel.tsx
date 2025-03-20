@@ -1,20 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
-// interface SchemaField {
-//   name: string;
-//   required: boolean;
-//   type: string;
-//   item?: string;
-//   fields?: SchemaField[];
-// }
-
-// interface SchemaDefinition {
-//   name: string;
-//   extends: string;
-//   fields: SchemaField[];
-// }
-
 interface NodeType {
   name: string;
   schema: {
@@ -76,17 +62,19 @@ export default function ExtendsPanel({
       </div>
       <Separator orientation="vertical" className="h-full" />
       <div className="pl-4 flex-[2]">
-        <div className="bg-black rounded-lg p-4 font-mono text-sm">
-          <pre className="text-white">
-            <code>
-              {JSON.stringify(
-                nodeTypes.find((t) => t.name === selectedNode)?.schema,
-                null,
-                2
-              )}
-            </code>
-          </pre>
-        </div>
+        {selectedNode && (
+          <div className="bg-black rounded-lg p-4 font-mono text-sm">
+            <pre className="text-white">
+              <code>
+                {JSON.stringify(
+                  nodeTypes.find((t) => t.name === selectedNode)?.schema,
+                  null,
+                  2
+                )}
+              </code>
+            </pre>
+          </div>
+        )}
       </div>
     </div>
   );
