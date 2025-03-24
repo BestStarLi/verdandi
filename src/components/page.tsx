@@ -24,14 +24,21 @@ export default function Page() {
       <SidebarProvider>
         <AppSidebar onItemSelect={handleItemSelect} />
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <div>
-              {activeComponent === 'Edit Node Schema' &&
-                'Node Schema Definition Editor'}
-              {activeComponent === 'Edit Component Schema' &&
-                'Component Definition Editor'}
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 justify-between">
+            <div className="flex items-center">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              <div>
+                {activeComponent === 'Edit Node Schema' &&
+                  'Node Schema Definition Editor'}
+                {activeComponent === 'Edit Component Schema' &&
+                  'Component Definition Editor'}
+              </div>
+            </div>
+            <div className='flex items-center'>
+              <a href="http://geomodeling.njnu.edu.cn" target="_blank" rel="noopener noreferrer">
+                <img src="./logo/OpenGMS01.png" alt="" className='w-39 h-28'/>
+              </a>
             </div>
           </header>
           {activeComponent === 'Edit Node Schema' && (

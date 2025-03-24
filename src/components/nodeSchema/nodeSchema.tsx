@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 import Fields from './fields';
 import ExtendsPanel from './extendsPanel';
 import TypePanel from './typePanel';
@@ -30,15 +31,18 @@ export default function NodeSchemaDefinition() {
     selectedItems,
     setSelectedItems,
     updateName,
+    fieldData,
+    schemaJSON,
   } = useNodeSchema();
+
   const [showExtendsPanel, setShowExtendsPanel] = useState(false);
   const [showTypePanel, setShowTypePanel] = useState(false);
-  const [selectedNode, setSelectedNode] = useState('MongoDoc');
+  const [isItemSelection, setIsItemSelection] = useState(false);
+  const [showPreviewPanel, setShowPreviewPanel] = useState(false);
+  const [selectedNode, setSelectedNode] = useState('');
+  const [panelType, setPanelType] = useState<'type' | 'item'>('type');
   const [nodeTypes, setNodeTypes] = useState<NodeType[]>([]);
   const [currentFieldId, setCurrentFieldId] = useState<string>('');
-  const [isItemSelection, setIsItemSelection] = useState(false);
-  const [panelType, setPanelType] = useState<'type' | 'item'>('type');
-  const [showPreviewPanel, setShowPreviewPanel] = useState(false);
 
   useEffect(() => {
     const fetchNodeTypes = async () => {
@@ -58,8 +62,11 @@ export default function NodeSchemaDefinition() {
 
   const handleNameChange = (value: string) => {
     updateName(value);
-    setShowExtendsPanel(false);
-    setShowTypePanel(false);
+
+    const nameInput = document.getElementById('name');
+    if (nameInput) {
+      nameInput.classList.remove('border-red-500');
+    }
   };
 
   const handleExtendsSelect = (value: string) => {
@@ -68,10 +75,24 @@ export default function NodeSchemaDefinition() {
   };
 
   const handleTypeSelect = (value: string) => {
+    // 如果类型从array/map变为其他类型，清除item值
+    const previousType = selectedTypes[currentFieldId] || '';
+    const isChangingFromArrayOrMap = ['array', 'map'].includes(previousType);
+    const isChangingToNonArrayOrMap = !['array', 'map'].includes(value);
+    
+    if (isChangingFromArrayOrMap && isChangingToNonArrayOrMap) {
+      setSelectedItems((prev) => {
+        const newItems = { ...prev };
+        delete newItems[currentFieldId];
+        return newItems;
+      });
+    }
+    
     setSelectedTypes((prev) => ({
       ...prev,
       [currentFieldId]: value,
     }));
+    
     setShowTypePanel(false);
   };
 
@@ -106,19 +127,50 @@ export default function NodeSchemaDefinition() {
   };
 
   const handlePreview = () => {
-    console.log('Current Schema:', schema);
-
     setShowPreviewPanel(true);
     setShowExtendsPanel(false);
     setShowTypePanel(false);
   };
 
   const handleRegister = () => {
-    const json = JSON.stringify(schema, null, 2);
+    if (!schema.name || schema.name.trim() === '') {
+      const nameInput = document.getElementById('name');
+      if (nameInput) {
+        nameInput.classList.add('border-red-500');
+      }
+      toast.error('请填写名称');
+      return;
+    }
+
+    const emptyFieldNames = Object.entries(fieldData)
+      .filter(([_, field]) => !field.name || field.name.trim() === '')
+      .map(([fieldId]) => fieldId);
+
+    if (emptyFieldNames.length > 0) {
+      toast.error('请填写所有字段的名称');
+      emptyFieldNames.forEach((fieldId) => {
+        const fieldInput = document.getElementById(`fieldName-${fieldId}`);
+        if (fieldInput) {
+          fieldInput.classList.add('border-red-500');
+        }
+      });
+      return;
+    }
+
+    const fieldNames = Object.values(fieldData).map(field => field.name.trim());
+    const duplicateNames = fieldNames.filter((name, index) => 
+      fieldNames.indexOf(name) !== index && name !== ''
+    );
+    
+    if (duplicateNames.length > 0) {
+      toast.error(`字段名称 "${duplicateNames[0]}" 重复`);
+      return;
+    }
+
+    const json = JSON.stringify(schemaJSON, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-
     a.href = url;
     a.download = 'NodeSchemaDefinition.json';
     document.body.appendChild(a);
