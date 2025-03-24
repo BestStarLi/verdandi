@@ -24,10 +24,12 @@ export default function Fields({
   toggleTypePanel,
   selectedTypes,
   selectedItems,
-  fieldId = 'root',
+  fieldId = '',
 }: FieldsProps) {
-  const { fieldData, updateFieldName, updateFieldRequired } = useNodeSchema();
+  const { fieldData, updateFieldName, updateFieldRequired } =
+    useNodeSchema();
   const [isFieldsOpen, setIsFieldsOpen] = useState(true);
+  const [nameError, setNameError] = useState(false);
   const selectedType = selectedTypes[fieldId] || '';
   const selectedItem = selectedItems[fieldId] || '';
   const nestedFieldId = `${fieldId}-nested`;
@@ -42,11 +44,26 @@ export default function Fields({
 
   const handleNameChange = (value: string) => {
     updateFieldName(fieldId, value);
+    if (value.trim() === '') {
+      setNameError(true);
+    } else {
+      setNameError(false);
+    }
+    
+    const nameInput = document.getElementById(`fieldName-${fieldId}`);
+    if (nameInput) {
+      if (value.trim() === '') {
+        nameInput.classList.add('border-red-500');
+      } else {
+        nameInput.classList.remove('border-red-500');
+      }
+    }
   };
 
   const handleRequiredChange = (checked: boolean) => {
     updateFieldRequired(fieldId, checked);
   };
+
 
   return (
     <Collapsible
@@ -62,7 +79,7 @@ export default function Fields({
         />
         <span>fields</span>
       </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-4 pl-6 data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp">
+      <CollapsibleContent className="space-y-4 pl-4 data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp">
         <div className="bg-white rounded-lg border p-4 space-y-4">
           <div className="space-y-2">
             <Label htmlFor={`fieldName-${fieldId}`} className="text-base">
@@ -70,11 +87,14 @@ export default function Fields({
             </Label>
             <Input
               id={`fieldName-${fieldId}`}
-              className="w-full"
+              className={`w-full ${nameError ? 'border-red-500' : ''}`}
               placeholder="Required"
               value={currentField.name}
               onChange={(e) => handleNameChange(e.target.value)}
             />
+            {nameError && (
+              <p className="text-sm text-red-500">字段名称不能为空</p>
+            )}
           </div>
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
@@ -117,13 +137,16 @@ export default function Fields({
               </Button>
             </div>
           )}
+          
           {selectedType === 'object' && (
-            <Fields
-              toggleTypePanel={toggleTypePanel}
-              selectedTypes={selectedTypes}
-              selectedItems={selectedItems}
-              fieldId={nestedFieldId}
-            />
+            <div className="mt-4 pl-4 border-gray-300">
+              <Fields
+                toggleTypePanel={toggleTypePanel}
+                selectedTypes={selectedTypes}
+                selectedItems={selectedItems}
+                fieldId={nestedFieldId}
+              />
+            </div>
           )}
         </div>
       </CollapsibleContent>

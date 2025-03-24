@@ -14,6 +14,7 @@ interface SchemaField {
   required: boolean;
   type: string;
   item?: string;
+  parentId?: string;
 }
 
 interface SchemaDefinition {
@@ -25,6 +26,7 @@ interface SchemaDefinition {
 interface FieldData {
   name: string;
   required: boolean;
+  parentId?: string;
 }
 
 interface NodeSchemaContextType {
@@ -84,21 +86,101 @@ export function NodeSchemaProvider({ children }: { children: ReactNode }) {
   };
 
   const generateSchemaJSON = () => {
-    const fields = Object.entries(selectedTypes).map(([fieldId, type]) => {
-      const field = fieldData[fieldId] || { name: fieldId, required: true };
-      return {
-        name: field.name || fieldId,
-        required: field.required,
+    const fieldMap: Record<string, any> = {};
+
+    Object.entries(fieldData).forEach(([fieldId, field]) => {
+      const type = selectedTypes[fieldId] || '';
+      const item = selectedItems[fieldId] || undefined;
+      
+      fieldMap[fieldId] = {
+        id: fieldId,
+        name: field.name || '',
+        ...(field.required && { required: true }),
         type: type,
-        item: selectedItems[fieldId] || undefined,
+        ...(item && { item }),
+        parentId: field.parentId,
+        fields: {},
       };
     });
 
-    return {
-      name: schema.name,
-      extends: schema.extends,
-      fields: fields,
+    const rootFields: Record<string, any> = {};
+
+    Object.values(fieldMap).forEach(field => {
+      if (!field.parentId && field.name) {
+        rootFields[field.name] = {
+          ...(field.required && { required: true }),
+          type: field.type,
+          ...(field.item && { item: { type: field.item } }),
+          ...(field.type === 'object' && { fields: {} }),
+        };
+      }
+    });
+    
+    Object.values(fieldMap).forEach(field => {
+      if (field.parentId && field.name) {
+
+        const parentField = fieldMap[field.parentId];
+        if (parentField) {
+
+          let targetParent;
+          
+          if (!parentField.parentId) {
+            targetParent = rootFields[parentField.name];
+          } else {
+
+            const findParentInStructure = (parentId: string, structure: Record<string, any>): any => {
+              for (const key in structure) {
+                if (fieldMap[parentId]?.name === key) {
+                  return structure[key];
+                }
+                if (structure[key].fields) {
+                  const found = findParentInStructure(parentId, structure[key].fields);
+                  if (found) return found;
+                }
+              }
+              return null;
+            };
+            
+            targetParent = findParentInStructure(field.parentId, rootFields);
+          }
+          
+          if (targetParent) {
+            if (!targetParent.fields) {
+              targetParent.fields = {};
+            }
+            
+            targetParent.fields[field.name] = {
+              ...(field.required && { required: true }),
+              type: field.type,
+              ...(field.item && { item: { type: field.item } }),
+              ...(field.type === 'object' && { fields: {} }),
+            };
+          }
+        }
+      }
+    });
+
+    const cleanEmptyFields = (obj: Record<string, any>) => {
+      if (!obj) return;
+      
+      Object.keys(obj).forEach(key => {
+        if (obj[key]?.fields && Object.keys(obj[key].fields).length === 0) {
+          delete obj[key].fields;
+        } else if (obj[key]?.fields) {
+          cleanEmptyFields(obj[key].fields);
+        }
+      });
     };
+    
+    cleanEmptyFields(rootFields);
+
+    const json: any = {
+      name: schema.name,
+      ...(schema.extends && schema.extends.trim() !== '' && { extends: schema.extends }),
+      fields: rootFields,
+    };
+
+    return json;
   };
 
   const schemaJSON = useMemo(
@@ -135,3 +217,8 @@ export function useNodeSchema() {
   }
   return context;
 }
+
+export function generateNewFieldId() {
+  return `field-${Date.now()}`; 
+};
+
