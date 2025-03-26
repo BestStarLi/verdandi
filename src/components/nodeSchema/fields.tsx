@@ -24,9 +24,9 @@ export default function Fields({
   toggleTypePanel,
   selectedTypes,
   selectedItems,
-  fieldId = '',
+  fieldId = 'father',
 }: FieldsProps) {
-  const { fieldData, updateFieldName, updateFieldRequired } =
+  const { fieldData, updateFieldName, updateFieldRequired, addNestedField } =
     useNodeSchema();
   const [isFieldsOpen, setIsFieldsOpen] = useState(true);
   const [nameError, setNameError] = useState(false);
@@ -146,6 +146,14 @@ export default function Fields({
                 selectedItems={selectedItems}
                 fieldId={nestedFieldId}
               />
+              
+              {/* <Button
+                variant="outline"
+                className="mt-2 w-full justify-center cursor-pointer"
+                onClick={() => addNestedField(fieldId)}
+              >
+                添加嵌套字段
+              </Button> */}
             </div>
           )}
         </div>

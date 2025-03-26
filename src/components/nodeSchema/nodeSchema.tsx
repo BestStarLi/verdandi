@@ -33,6 +33,7 @@ export default function NodeSchemaDefinition() {
     updateName,
     fieldData,
     schemaJSON,
+    addRootField,
   } = useNodeSchema();
 
   const [showExtendsPanel, setShowExtendsPanel] = useState(false);
@@ -75,7 +76,6 @@ export default function NodeSchemaDefinition() {
   };
 
   const handleTypeSelect = (value: string) => {
-    // 如果类型从array/map变为其他类型，清除item值
     const previousType = selectedTypes[currentFieldId] || '';
     const isChangingFromArrayOrMap = ['array', 'map'].includes(previousType);
     const isChangingToNonArrayOrMap = !['array', 'map'].includes(value);
@@ -217,6 +217,14 @@ export default function NodeSchemaDefinition() {
               selectedTypes={selectedTypes}
               selectedItems={selectedItems}
             />
+            
+            {/* <Button
+              variant="outline"
+              className="w-full justify-center cursor-pointer"
+              onClick={addRootField}
+            >
+              添加根级字段
+            </Button> */}
           </div>
           <div className="flex gap-4 justify-end mt-4">
             <Button
