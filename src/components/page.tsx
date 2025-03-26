@@ -36,8 +36,8 @@ export default function Page() {
               </div>
             </div>
             <div className='flex items-center'>
-              <a href="http://geomodeling.njnu.edu.cn" target="_blank" rel="noopener noreferrer">
-                <img src="./logo/OpenGMS01.png" alt="" className='w-39 h-28'/>
+              <a href="http://geomodeling.njnu.edu.cn">
+                <img src="./logo/OpenGMS.png" alt="" className='w-39 h-28'/>
               </a>
             </div>
           </header>
