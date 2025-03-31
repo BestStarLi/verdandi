@@ -19,8 +19,7 @@ import NewStatusPanel from './restful/newStatusPanel';
 
 export default function ComponentSchema() {
   const [componentType, setComponentType] = useState('restful'); //暂设默认显示方便看代码效果
-  const [showNewParamsPanel, setShowNewParamsPanel] = useState(false);
-  const [showNewStatusPanel, setShowNewStatusPanel] = useState(false);
+  const [activePanel, setActivePanel] = useState<'params' | 'status' | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleParamAdded = () => {
@@ -28,6 +27,18 @@ export default function ComponentSchema() {
   };
   const handleStatusAdded = () => {
     setRefreshTrigger(prev => prev + 1);
+  };
+
+  const handleShowParamsPanel = () => {
+    setActivePanel('params');
+  };
+
+  const handleShowStatusPanel = () => {
+    setActivePanel('status');
+  };
+
+  const handleClosePanel = () => {
+    setActivePanel(null);
   };
 
   return (
@@ -61,7 +72,7 @@ export default function ComponentSchema() {
             <Separator />
             {componentType === 'grpc' && <GRPC />}
             {componentType === 'local' && <LOCAL />}
-            {componentType === 'restful' && <RESTFUL setShowNewParamsPanel={setShowNewParamsPanel} setShowNewStatusPanel={setShowNewStatusPanel} refreshTrigger={refreshTrigger} />}
+            {componentType === 'restful' && <RESTFUL setShowNewParamsPanel={handleShowParamsPanel} setShowNewStatusPanel={handleShowStatusPanel} refreshTrigger={refreshTrigger} />}
             {componentType === 'runtime' && <RUNTIME />}
           </div>
           <div className="flex gap-4 justify-end mt-4">
@@ -79,8 +90,18 @@ export default function ComponentSchema() {
 
         {/* Right Panel */}
         <div className="flex-1 basis-3/5">
-          {showNewParamsPanel && <NewParamsPanel onClose={() => setShowNewParamsPanel(false)} onSuccess={handleParamAdded} />}
-          {showNewStatusPanel && <NewStatusPanel onClose={() => setShowNewStatusPanel(false)} onSuccess={handleStatusAdded} />}
+          {activePanel === 'params' && (
+            <NewParamsPanel 
+              onClose={handleClosePanel} 
+              onSuccess={handleParamAdded} 
+            />
+          )}
+          {activePanel === 'status' && (
+            <NewStatusPanel 
+              onClose={handleClosePanel} 
+              onSuccess={handleStatusAdded} 
+            />
+          )}
         </div>
       </div>
     </div>

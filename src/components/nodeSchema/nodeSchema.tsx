@@ -33,6 +33,7 @@ export default function NodeSchemaDefinition() {
     updateName,
     fieldData,
     schemaJSON,
+    clearChildFields,
   } = useNodeSchema();
 
   const [showExtendsPanel, setShowExtendsPanel] = useState(false);
@@ -78,6 +79,11 @@ export default function NodeSchemaDefinition() {
     const previousType = selectedTypes[currentFieldId] || '';
     const isChangingFromArrayOrMap = ['array', 'map'].includes(previousType);
     const isChangingToNonArrayOrMap = !['array', 'map'].includes(value);
+    const isChangingFromObject = previousType === 'object';
+    
+    if (isChangingFromObject && value !== 'object') {
+      clearChildFields(currentFieldId);
+    }
     
     if (isChangingFromArrayOrMap && isChangingToNonArrayOrMap) {
       setSelectedItems((prev) => {
