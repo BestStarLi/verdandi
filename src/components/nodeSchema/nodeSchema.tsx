@@ -33,7 +33,6 @@ export default function NodeSchemaDefinition() {
     updateName,
     fieldData,
     schemaJSON,
-    addRootField,
   } = useNodeSchema();
 
   const [showExtendsPanel, setShowExtendsPanel] = useState(false);
@@ -218,13 +217,6 @@ export default function NodeSchemaDefinition() {
               selectedItems={selectedItems}
             />
             
-            {/* <Button
-              variant="outline"
-              className="w-full justify-center cursor-pointer"
-              onClick={addRootField}
-            >
-              添加根级字段
-            </Button> */}
           </div>
           <div className="flex gap-4 justify-end mt-4">
             <Button

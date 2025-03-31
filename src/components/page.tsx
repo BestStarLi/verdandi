@@ -12,7 +12,7 @@ import { NodeSchemaProvider } from './nodeSchema/nodeSchemaContext';
 
 export default function Page() {
   const [activeComponent, setActiveComponent] = useState<string>(
-    'Edit Node Schema'
+    'Edit Component Schema'
   ); //暂设默认显示方便看代码效果
 
   const handleItemSelect = (item: string) => {
@@ -36,8 +36,8 @@ export default function Page() {
               </div>
             </div>
             <div className='flex items-center'>
-              <a href="http://geomodeling.njnu.edu.cn">
-                <img src="./logo/OpenGMS.png" alt="" className='w-39 h-28'/>
+              <a href="http://geomodeling.njnu.edu.cn" title="OpenGMS" aria-label="OpenGMS">
+                <img src="./logo/OpenGMS.png" alt="OpenGMS Logo" className='w-39 h-28'/>
               </a>
             </div>
           </header>
