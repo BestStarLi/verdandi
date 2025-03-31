@@ -50,7 +50,7 @@ export function AppSidebar({
   typeof Sidebar
 >) {
   const [activeItem, setActiveItem] = useState<string | null>(
-    'Edit Node Schema' //暂设默认显示方便看代码效果
+    'Edit Component Schema' //暂设默认显示方便看代码效果
   );
 
   const handleItemClick = (item: string) => {

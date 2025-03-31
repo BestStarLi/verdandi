@@ -26,8 +26,7 @@ export default function Fields({
   selectedItems,
   fieldId = 'father',
 }: FieldsProps) {
-  const { fieldData, updateFieldName, updateFieldRequired, addNestedField } =
-    useNodeSchema();
+  const { fieldData, updateFieldName, updateFieldRequired } = useNodeSchema();
   const [isFieldsOpen, setIsFieldsOpen] = useState(true);
   const [nameError, setNameError] = useState(false);
   const selectedType = selectedTypes[fieldId] || '';
@@ -49,7 +48,7 @@ export default function Fields({
     } else {
       setNameError(false);
     }
-    
+
     const nameInput = document.getElementById(`fieldName-${fieldId}`);
     if (nameInput) {
       if (value.trim() === '') {
@@ -63,7 +62,6 @@ export default function Fields({
   const handleRequiredChange = (checked: boolean) => {
     updateFieldRequired(fieldId, checked);
   };
-
 
   return (
     <Collapsible
@@ -108,19 +106,19 @@ export default function Fields({
                 onCheckedChange={handleRequiredChange}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor={`type-${fieldId}`} className="text-base">
-                type
-              </Label>
-              <Button
-                variant="outline"
-                className="w-full justify-between cursor-pointer"
-                onClick={() => toggleTypePanel(fieldId, false)}
-              >
-                <span>{selectedType || '请选择'}</span>
-                <ChevronDown className="h-4 w-4 opacity-50" />
-              </Button>
-            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`type-${fieldId}`} className="text-base">
+              type
+            </Label>
+            <Button
+              variant="outline"
+              className="w-full justify-between cursor-pointer"
+              onClick={() => toggleTypePanel(fieldId, false)}
+            >
+              <span>{selectedType || '请选择'}</span>
+              <ChevronDown className="h-4 w-4 opacity-50" />
+            </Button>
           </div>
           {['map', 'array'].includes(selectedType) && (
             <div className="space-y-2">
@@ -137,7 +135,7 @@ export default function Fields({
               </Button>
             </div>
           )}
-          
+
           {selectedType === 'object' && (
             <div className="mt-4 pl-4 border-gray-300">
               <Fields
@@ -146,7 +144,7 @@ export default function Fields({
                 selectedItems={selectedItems}
                 fieldId={nestedFieldId}
               />
-              
+
               {/* <Button
                 variant="outline"
                 className="mt-2 w-full justify-center cursor-pointer"
