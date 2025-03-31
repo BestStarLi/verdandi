@@ -1,34 +1,41 @@
 # Verdandi
 
 <p align="center">
-<img align="center" width="150px" height="180px" src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Nornir_by_Lund.jpg"
+<img align="center" width="150px" height="180px" src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Nornir_by_Lund.jpg" alt="Verdandi Logo" />
 </p>
 
-<p style="text-align: justify;">Verdandi is a Node Schema and Component Definition JSON Editor for Yggdrail. <a href="https://github.com/world-in-progress/verdandi">https://github.com/world-in-progress/verdandi</a></p>
+## Overview
 
+Verdandi is a Node Schema and Component Definition JSON Editor for Yggdrail. It provides powerful tools for managing and editing node schemas and component definitions.
 
-<p style="text-align: justify;">Verdandi, along with the other two Norns, weaves the web of fate at the roots of Yggdrasil, determining the destinies of both gods and humans. Yggdrasil is not only a physical connection but also a symbol of fate. As the Norn who presides over the “present,” Verdandi's duty is to ensure that the fate of the current moment unfolds correctly.</p>
+<p><a href="https://github.com/world-in-progress/yggdrasil">https://github.com/world-in-progress/yggdrasil</a></p>
 
+> In Norse mythology, Verdandi is one of the three Norns who weaves the web of fate at the roots of Yggdrasil, determining the destinies of both gods and humans. As the Norn who presides over the "present," Verdandi's duty is to ensure that the fate of the current moment unfolds correctly.
 
-## How to launch Verdandi
+## Quick Start
 
-First, properly configure your MongoDB database in `main.py`.
+### 1. Database Configuration
+
+Configure your MongoDB database in `main.py`:
+
+```python
+client = MongoClient("mongodb://localhost:27017/")  # Your MongoDB URL
+db = client["test"]                                 # Your MongoDB database name
+nodeSchemaCollection = db["nodeSchema"]             # Your Node Schema collection name
+requestParamsCollection = db["requestParams"]       # Your Request Params collection name
+responseStatusCollection = db["responseStatus"]     # Your Response Status collection name
 ```
-client = MongoClient("mongodb://localhost:27017/") //Your MongoDB URL
-db = client["test"] //Your MongoDB database name
-nodeSchemaCollection = db["nodeSchema"] //Your Node Schema collection name
-requestParamsCollection = db["requestParams"] //Your Request Params collection name
-responseStatusCollection = db["responseStatus"] //Your Response Status collection name
-```
 
-Second, start the backend.
-```
-cd .\backend\
+### 2. Start Backend
+
+```bash
+cd ./backend/
 uvicorn main:app --reload
 ```
 
-Finally, open a new terminal and start the frontend.
-```
+### 3. Start Frontend
+
+```bash
 npm run dev
 ```
 

@@ -50,6 +50,9 @@ interface NodeSchemaContextType {
   addNestedField: (parentFieldId: string) => void;
   addRootField: () => void;
   setFieldParent: (fieldId: string, parentFieldId: string) => void;
+  clearChildFields: (fieldId: string) => void;
+  responseStatus: string;
+  setResponseStatus: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const NodeSchemaContext = createContext<NodeSchemaContextType | undefined>(
@@ -78,6 +81,7 @@ export function NodeSchemaProvider({ children }: { children: ReactNode }) {
     {}
   );
   const [fieldData, setFieldData] = useState<Record<string, FieldData>>({});
+  const [responseStatus, setResponseStatus] = useState<string>('');
 
   const updateName = (name: string) => {
     setSchema((prev) => ({ ...prev, name }));
@@ -147,6 +151,38 @@ export function NodeSchemaProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  const clearChildFields = (fieldId: string) => {
+    setFieldData((prev) => {
+      const newFieldData = { ...prev };
+      Object.keys(newFieldData).forEach((key) => {
+        if (key.startsWith(`${fieldId}-nested`)) {
+          delete newFieldData[key];
+        }
+      });
+      return newFieldData;
+    });
+
+    setSelectedTypes((prev) => {
+      const newTypes = { ...prev };
+      Object.keys(newTypes).forEach((key) => {
+        if (key.startsWith(`${fieldId}-nested`)) {
+          delete newTypes[key];
+        }
+      });
+      return newTypes;
+    });
+
+    setSelectedItems((prev) => {
+      const newItems = { ...prev };
+      Object.keys(newItems).forEach((key) => {
+        if (key.startsWith(`${fieldId}-nested`)) {
+          delete newItems[key];
+        }
+      });
+      return newItems;
+    });
+  };
+
   const generateSchemaJSON = () => {
     const fieldMap: Record<string, any> = {};
 
@@ -204,15 +240,17 @@ export function NodeSchemaProvider({ children }: { children: ReactNode }) {
           ...(field.item && { item: { type: field.item } }),
         };
         
-        const children = childrenByParent[field.id] || [];
-        if (children.length > 0) {
-          result.fields = {};
-          
-          children.forEach(child => {
-            if (child.name) {
-              result.fields[child.name] = buildFieldStructure(child);
-            }
-          });
+        if (field.type === 'object') {
+          const children = childrenByParent[field.id] || [];
+          if (children.length > 0) {
+            result.fields = {};
+            
+            children.forEach(child => {
+              if (child.name) {
+                result.fields[child.name] = buildFieldStructure(child);
+              }
+            });
+          }
         }
         
         return result;
@@ -233,6 +271,7 @@ export function NodeSchemaProvider({ children }: { children: ReactNode }) {
       name: schema.name,
       ...(schema.extends &&
         schema.extends.trim() !== '' && { extends: schema.extends }),
+      ...(responseStatus && { responseStatus }),
       fields: rootFields,
     };
 
@@ -241,7 +280,7 @@ export function NodeSchemaProvider({ children }: { children: ReactNode }) {
 
   const schemaJSON = useMemo(
     () => generateSchemaJSON(),
-    [schema, selectedTypes, selectedItems, fieldData]
+    [schema, selectedTypes, selectedItems, fieldData, responseStatus]
   );
 
   const value = {
@@ -260,6 +299,9 @@ export function NodeSchemaProvider({ children }: { children: ReactNode }) {
     addNestedField,
     addRootField,
     setFieldParent,
+    clearChildFields,
+    responseStatus,
+    setResponseStatus,
   };
 
   return (

@@ -9,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import NestedParams from './nestedParams';
 
 interface NewStatusPanelProps {
@@ -19,7 +18,7 @@ interface NewStatusPanelProps {
 
 export default function NewStatusPanel({
   onClose,
-  onSuccess,
+  // onSuccess,
 }: NewStatusPanelProps) {
   return (
     <div className="flex flex-col h-full bg-white rounded-lg border p-4 gap-4">
@@ -30,12 +29,6 @@ export default function NewStatusPanel({
             code<span className="text-destructive">*</span>
           </Label>
           <Input id="name" required className="w-full" placeholder="required" />
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Label className="text-base">is pathParam</Label>
-            <Checkbox className="cursor-pointer" />
-          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="description" className="text-base">
